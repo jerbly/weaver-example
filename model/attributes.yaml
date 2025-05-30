@@ -1,0 +1,14 @@
+groups:
+  - id: registry.example
+    type: attribute_group
+    display_name: Example Attributes
+    brief: "Describes example attributes."
+    attributes:
+      - id: example.message
+        type: string
+        brief: A simple message.
+        note: "This attribute is used to demonstrate a simple string attribute."
+        stability: development
+        examples: ["Hello, World!"]
+      - ref: host.name
+      - ref: host.arch

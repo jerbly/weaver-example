@@ -1,0 +1,13 @@
+groups:
+  - id: span.example_message
+    type: span
+    stability: development
+    brief: This span represents a simple message.
+    span_kind: client
+    attributes:
+      - ref: example.message
+        requirement_level: required
+      - ref: host.name
+        requirement_level: required
+      - ref: host.arch
+        requirement_level: required

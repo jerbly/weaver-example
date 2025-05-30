@@ -1,0 +1,9 @@
+{
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/open-telemetry/weaver/refs/heads/main/schemas/semconv.schema.json": [
+      "model/**/*.yaml",
+      "model/**/*.yml",
+      "!model/**/registry_manifest.yaml"
+    ]
+  }
+}
