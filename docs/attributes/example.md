@@ -12,14 +12,16 @@ Describes example attributes.
 | <a id="example-message" href="#example-message">`example.message`</a> | string | A simple message. [1] | `Hello, World!` | ![Development](https://img.shields.io/badge/-development-blue) |
 | <a id="host-arch" href="#host-arch">`host.arch`</a> | string | The CPU architecture the host system is running on. | `amd64`; `arm32`; `arm64` | ![Development](https://img.shields.io/badge/-development-blue) |
 | <a id="host-name" href="#host-name">`host.name`</a> | string | Name of the host. On Unix systems, it may contain what the hostname command returns, or the fully qualified hostname, or another name specified by the user. | `opentelemetry-test` | ![Development](https://img.shields.io/badge/-development-blue) |
-| <a id="host-name" href="#host-name">`host.name`</a> | string | Name of the host. On Unix systems, it may contain what the hostname command returns, or the fully qualified hostname, or another name specified by the user. | `opentelemetry-test` | ![Development](https://img.shields.io/badge/-development-blue) |
+| <a id="service-name" href="#service-name">`service.name`</a> | string | Logical name of the service. [2] | `shoppingcart` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
 | <a id="telemetry-sdk-language" href="#telemetry-sdk-language">`telemetry.sdk.language`</a> | string | The language of the telemetry SDK. | `cpp`; `dotnet`; `erlang` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
-| <a id="telemetry-sdk-name" href="#telemetry-sdk-name">`telemetry.sdk.name`</a> | string | The name of the telemetry SDK as defined above. [2] | `opentelemetry` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
+| <a id="telemetry-sdk-name" href="#telemetry-sdk-name">`telemetry.sdk.name`</a> | string | The name of the telemetry SDK as defined above. [3] | `opentelemetry` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
 | <a id="telemetry-sdk-version" href="#telemetry-sdk-version">`telemetry.sdk.version`</a> | string | The version string of the telemetry SDK. | `1.2.3` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
 
 **[1] `example.message`:** This attribute is used to demonstrate a simple string attribute.
 
-**[2] `telemetry.sdk.name`:** The OpenTelemetry SDK MUST set the `telemetry.sdk.name` attribute to `opentelemetry`.
+**[2] `service.name`:** MUST be the same for all instances of horizontally scaled services. If the value was not specified, SDKs MUST fallback to `unknown_service:` concatenated with [`process.executable.name`](process.md), e.g. `unknown_service:bash`. If `process.executable.name` is not available, the value MUST be set to `unknown_service`.
+
+**[3] `telemetry.sdk.name`:** The OpenTelemetry SDK MUST set the `telemetry.sdk.name` attribute to `opentelemetry`.
 If another SDK, like a fork or a vendor-provided implementation, is used, this SDK MUST set the
 `telemetry.sdk.name` attribute to the fully-qualified class or module name of this SDK's main entry point
 or another suitable identifier depending on the language.
