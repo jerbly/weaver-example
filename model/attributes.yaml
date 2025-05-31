@@ -12,3 +12,7 @@ groups:
         examples: ["Hello, World!"]
       - ref: host.name
       - ref: host.arch
+      - ref: service.name
+      - ref: telemetry.sdk.language
+      - ref: telemetry.sdk.version
+      - ref: telemetry.sdk.name

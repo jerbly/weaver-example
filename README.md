@@ -26,8 +26,16 @@ This project acts as an example to showcase the features of weaver - the OpenTel
 
   - Use the model to emit example telemetry
 
+    `otel-desktop-viewer --browser 8001`
+
+    `weaver registry emit -r model`
+
 - Example application - an application which gets CPU information and sends appropriate spans and metrics
+
   - Use live-check to see if the program's telemetry is compliant with the model
+
+    `weaver registry live-check -r model --inactivity-timeout 20`
+
 - CI - a github workflow to build and test the application
   - A live-check test which runs the application in a test mode and will pass/fail based on live-check exit code
 
