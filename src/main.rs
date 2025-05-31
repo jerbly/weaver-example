@@ -1,4 +1,5 @@
 pub mod attributes;
+pub mod metrics;
 
 use anyhow::Result;
 use opentelemetry::trace::{Span, Tracer};
@@ -7,6 +8,8 @@ use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::metrics::SdkMeterProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use std::env;
+
+const WEAVER_EXAMPLE: &str = "weaver-example";
 
 #[derive(Debug)]
 pub struct ParamValue<'a>(&'a str);
@@ -36,7 +39,7 @@ fn init_tracer_provider() -> Result<SdkTracerProvider> {
     Ok(SdkTracerProvider::builder()
         .with_resource(
             Resource::builder()
-                .with_service_name("weaver-example")
+                .with_service_name(WEAVER_EXAMPLE)
                 .build(),
         )
         .with_batch_exporter(exporter)
@@ -45,7 +48,7 @@ fn init_tracer_provider() -> Result<SdkTracerProvider> {
 
 fn init_meter_provider() -> Result<SdkMeterProvider> {
     let resource = Resource::builder()
-        .with_service_name("weaver-example")
+        .with_service_name(WEAVER_EXAMPLE)
         .build();
 
     let exporter = opentelemetry_otlp::MetricExporter::builder()
@@ -67,7 +70,7 @@ fn get_hostname() -> String {
 }
 
 fn example_span(message: &ParamValue<'_>) {
-    let tracer = global::tracer("weaver-example");
+    let tracer = global::tracer(WEAVER_EXAMPLE);
     let mut span = tracer
         .span_builder("example_message")
         .with_attributes(vec![
@@ -82,10 +85,13 @@ fn example_span(message: &ParamValue<'_>) {
 }
 
 fn example_metric(message_count: usize) {
-    let meter = global::meter("weaver-example");
-    let gauge = meter.u64_gauge("example.counter").with_unit("1").build();
+    let meter = global::meter(WEAVER_EXAMPLE);
+    let counter = meter
+        .u64_counter(metrics::EXAMPLE_COUNTER)
+        .with_unit("1")
+        .build();
 
-    gauge.record(
+    counter.add(
         message_count as u64,
         &[
             KeyValue::new(attributes::HOST_NAME, get_hostname()),

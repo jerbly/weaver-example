@@ -17,7 +17,7 @@ groups:
     metric_name: example.counter
     stability: development
     brief: A counter of the number of messages processed.
-    instrument: gauge
+    instrument: counter
     unit: "1"
     attributes:
       - ref: host.name

@@ -22,3 +22,6 @@ templates:
   - pattern: attributes.rs.j2
     filter: semconv_grouped_attributes($params)
     application_mode: single
+  - pattern: metrics.rs.j2
+    filter: semconv_grouped_metrics($params)
+    application_mode: single
