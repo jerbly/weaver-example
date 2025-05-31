@@ -32,5 +32,6 @@ All registered attributes are listed by namespace in this registry.
 Currently, the following namespaces exist:
 
 - [Example](example.md)
+- [OTel Sdk](otel-sdk.md)
 
 [developers recommendations]: ../../general/naming.md#recommendations-for-application-developers

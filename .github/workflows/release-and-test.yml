@@ -46,7 +46,7 @@ jobs:
           sleep 2
 
           echo "Running the application..."
-          ./target/release/weaver-example
+          ./target/release/weaver-example "CI Test Message"
 
           echo "Waiting for live-check process to finish..."
           wait $LIVE_CHECK_PID

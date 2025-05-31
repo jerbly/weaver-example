@@ -1,9 +1,8 @@
-use std::process::Command as StdCommand;
+use std::process::{Command as StdCommand, ExitStatus};
 use std::thread::sleep;
 use std::time::Duration;
 
-#[test]
-fn test_with_live_check() {
+fn run_live_check(param_value: &str) -> ExitStatus {
     // Start registry live check command as a background process
     let mut live_check_cmd = StdCommand::new("weaver")
         .args([
@@ -12,7 +11,7 @@ fn test_with_live_check() {
             "-r",
             "model",
             "--inactivity-timeout",
-            "4",
+            "3",
         ])
         .spawn()
         .expect("Failed to start registry live check process");
@@ -22,6 +21,7 @@ fn test_with_live_check() {
 
     // Run weaver-example command
     let example_cmd = StdCommand::new(env!("CARGO_BIN_EXE_weaver-example"))
+        .arg(param_value)
         .output()
         .expect("Failed to execute weaver-example process");
 
@@ -33,14 +33,26 @@ fn test_with_live_check() {
     );
 
     // Wait for live check process to terminate due to inactivity timeout
-    let status = live_check_cmd
+    live_check_cmd
         .wait()
-        .expect("Failed to wait for live check process to terminate");
+        .expect("Failed to wait for live check process to terminate")
+}
 
-    // Verify the live check command exited ok
+#[test]
+fn test_live_check() {
+    let status = run_live_check("SHOULD PASS");
     assert!(
         status.success(),
         "Live check command did not exit successfully: {:?}",
+        status
+    );
+
+    sleep(Duration::from_secs(1));
+
+    let status = run_live_check("123");
+    assert!(
+        !status.success(),
+        "Live check command did not exit with an error: {:?}",
         status
     );
 }
