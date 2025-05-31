@@ -56,7 +56,7 @@ The application has been contrived so you can provoke a violation in `live-check
 
 The `live-check.rs` unit test checks for pass and fail by providing strings and ints as above.
 
-### Use live-check on the command line
+#### Use live-check on the command line
 
 `weaver registry live-check -r model --inactivity-timeout 20`
 
@@ -64,7 +64,7 @@ In another shell:
 
 `cargo run -- foo 42`
 
-### CI
+#### CI
 
 A github workflow to build and test the application is included. The application is live-checked in the workflow.
 
