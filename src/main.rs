@@ -47,7 +47,17 @@ fn init_meter_provider() -> Result<SdkMeterProvider> {
     let resource = Resource::builder()
         .with_service_name("weaver-example")
         .build();
-    Ok(SdkMeterProvider::builder().with_resource(resource).build())
+
+    let exporter = opentelemetry_otlp::MetricExporter::builder()
+        .with_tonic()
+        .build()?;
+
+    let reader = opentelemetry_sdk::metrics::PeriodicReader::builder(exporter).build();
+
+    Ok(SdkMeterProvider::builder()
+        .with_resource(resource)
+        .with_reader(reader)
+        .build())
 }
 
 fn get_hostname() -> String {
@@ -73,12 +83,9 @@ fn example_span(message: &ParamValue<'_>) {
 
 fn example_metric(message_count: usize) {
     let meter = global::meter("weaver-example");
-    let counter = meter
-        .u64_counter("example.counter")
-        .with_description("A counter of the number of messages processed.")
-        .build();
+    let gauge = meter.u64_gauge("example.counter").with_unit("1").build();
 
-    counter.add(
+    gauge.record(
         message_count as u64,
         &[
             KeyValue::new(attributes::HOST_NAME, get_hostname()),
