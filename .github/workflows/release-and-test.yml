@@ -35,23 +35,21 @@ jobs:
       - name: Run tests
         run: cargo test
 
-      - name: Start weaver live-check in background
+      - name: Run live-check validation
         run: |
-          weaver registry live-check -r model --inactivity-timeout 20 &
-          echo $! > live_check_pid.txt
+          echo "Starting weaver live-check in background..."
+          weaver registry live-check -r model --inactivity-timeout 4 &
+          LIVE_CHECK_PID=$!
+          echo "Live-check started with PID: $LIVE_CHECK_PID"
+
           # Give live-check a moment to initialize
           sleep 2
 
-      - name: Run the application
-        run: ./target/release/weaver-example
+          echo "Running the application..."
+          ./target/release/weaver-example
 
-      - name: Wait for live-check to finish and verify exit code
-        run: |
-          PID=$(cat live_check_pid.txt)
-          echo "Waiting for live-check process (PID: $PID) to finish..."
-
-          # Wait for the process to finish
-          wait $PID
+          echo "Waiting for live-check process to finish..."
+          wait $LIVE_CHECK_PID
           EXIT_CODE=$?
 
           echo "Live-check process finished with exit code: $EXIT_CODE"
