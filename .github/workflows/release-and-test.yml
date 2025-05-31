@@ -1,0 +1,65 @@
+name: Release Build and Live Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install weaver
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/open-telemetry/weaver/releases/download/v0.15.2/weaver-installer.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Verify weaver installation
+        run: weaver --version
+
+      - name: Build in release mode
+        run: cargo build --release
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Start weaver live-check in background
+        run: |
+          weaver registry live-check -r model --inactivity-timeout 20 &
+          echo $! > live_check_pid.txt
+          # Give live-check a moment to initialize
+          sleep 2
+
+      - name: Run the application
+        run: ./target/release/weaver-example
+
+      - name: Wait for live-check to finish and verify exit code
+        run: |
+          PID=$(cat live_check_pid.txt)
+          echo "Waiting for live-check process (PID: $PID) to finish..."
+
+          # Wait for the process to finish
+          wait $PID
+          EXIT_CODE=$?
+
+          echo "Live-check process finished with exit code: $EXIT_CODE"
+
+          # Check if exit code is 0 (success)
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ Live-check validation passed!"
+          else
+            echo "❌ Live-check validation failed with exit code: $EXIT_CODE"
+            exit 1
+          fi
