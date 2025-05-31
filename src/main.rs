@@ -1,17 +1,18 @@
 pub mod attributes;
 
 use anyhow::Result;
-use opentelemetry::trace::Tracer;
+use opentelemetry::trace::{Span, Tracer};
 use opentelemetry::{KeyValue, Value, global};
 use opentelemetry_sdk::Resource;
+use opentelemetry_sdk::metrics::SdkMeterProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
 use std::env;
 
 #[derive(Debug)]
 pub struct ParamValue<'a>(&'a str);
 
-impl From<ParamValue<'_>> for Value {
-    fn from(msg_val: ParamValue<'_>) -> Self {
+impl From<&ParamValue<'_>> for Value {
+    fn from(msg_val: &ParamValue<'_>) -> Self {
         let arg = msg_val.0;
         // Try to parse as integer first
         if let Ok(int_val) = arg.parse::<i64>() {
@@ -42,38 +43,74 @@ fn init_tracer_provider() -> Result<SdkTracerProvider> {
         .build())
 }
 
-fn example_span(message: ParamValue<'_>) {
-    let host_name = hostname::get()
-        .map(|h| h.to_string_lossy().to_string())
-        .unwrap_or_else(|_| "unknown".to_string());
+fn init_meter_provider() -> Result<SdkMeterProvider> {
+    let resource = Resource::builder()
+        .with_service_name("weaver-example")
+        .build();
+    Ok(SdkMeterProvider::builder().with_resource(resource).build())
+}
 
+fn get_hostname() -> String {
+    hostname::get()
+        .map(|h| h.to_string_lossy().to_string())
+        .unwrap_or_else(|_| "unknown".to_string())
+}
+
+fn example_span(message: &ParamValue<'_>) {
     let tracer = global::tracer("weaver-example");
-    let _span = tracer
+    let mut span = tracer
         .span_builder("example_message")
         .with_attributes(vec![
             KeyValue::new(attributes::EXAMPLE_MESSAGE, message),
-            KeyValue::new(attributes::HOST_NAME, host_name),
             KeyValue::new(attributes::HOST_ARCH, std::env::consts::ARCH),
         ])
         .start(&tracer);
+
+    let hostname = get_hostname();
+
+    span.set_attribute(KeyValue::new(attributes::HOST_NAME, hostname));
+}
+
+fn example_metric(message_count: usize) {
+    let meter = global::meter("weaver-example");
+    let counter = meter
+        .u64_counter("example.counter")
+        .with_description("A counter of the number of messages processed.")
+        .build();
+
+    counter.add(
+        message_count as u64,
+        &[
+            KeyValue::new(attributes::HOST_NAME, get_hostname()),
+            KeyValue::new(attributes::HOST_ARCH, std::env::consts::ARCH),
+        ],
+    );
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Get command line arguments
     let args: Vec<String> = env::args().collect();
-    let message = if args.len() > 1 {
-        ParamValue(&args[1])
+    let messages: Vec<ParamValue> = if args.len() > 1 {
+        args[1..].iter().map(|arg| ParamValue(arg)).collect()
     } else {
-        ParamValue("Hello, World!")
+        vec![ParamValue("Hello, World!")]
     };
 
     let tracer_provider = init_tracer_provider()?;
     let _ = global::set_tracer_provider(tracer_provider.clone());
 
-    example_span(message);
+    let meter_provider = init_meter_provider()?;
+    global::set_meter_provider(meter_provider.clone());
+
+    for message in &messages {
+        example_span(message);
+    }
+
+    example_metric(messages.len());
 
     tracer_provider.force_flush()?;
+    meter_provider.shutdown()?;
 
     Ok(())
 }

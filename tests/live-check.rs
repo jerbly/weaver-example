@@ -21,6 +21,7 @@ fn run_live_check(param_value: &str) -> ExitStatus {
 
     // Run weaver-example command
     let example_cmd = StdCommand::new(env!("CARGO_BIN_EXE_weaver-example"))
+        .arg("TESTING")
         .arg(param_value)
         .output()
         .expect("Failed to execute weaver-example process");
@@ -47,7 +48,7 @@ fn test_live_check() {
         status
     );
 
-    sleep(Duration::from_secs(1));
+    sleep(Duration::from_secs(2));
 
     let status = run_live_check("123");
     assert!(

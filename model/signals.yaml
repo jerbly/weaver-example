@@ -11,3 +11,16 @@ groups:
         requirement_level: required
       - ref: host.arch
         requirement_level: required
+
+  - id: metric.example_counter
+    type: metric
+    metric_name: example.counter
+    stability: development
+    brief: A counter of the number of messages processed.
+    instrument: gauge
+    unit: "1"
+    attributes:
+      - ref: host.name
+        requirement_level: required
+      - ref: host.arch
+        requirement_level: required

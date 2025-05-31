@@ -2,7 +2,7 @@
 
 ## Description
 
-This project acts as an example to showcase the features of weaver - the OpenTelemetry project that provides tooling for semantic conventions.
+This project attempts to demonstrate practical usage of weaver - the OpenTelemetry project that provides tooling for semantic conventions.
 
 ### Items
 
@@ -28,16 +28,25 @@ This project acts as an example to showcase the features of weaver - the OpenTel
 
     `otel-desktop-viewer --browser 8001`
 
+    In another shell:
+
     `weaver registry emit -r model`
 
-- Example application - an application which gets CPU information and sends appropriate spans and metrics
+- Example application - an application which sends spans and metrics
 
   - Use live-check to see if the program's telemetry is compliant with the model
 
     `weaver registry live-check -r model --inactivity-timeout 20`
 
+    In another shell:
+
+    `cargo run`
+
 - CI - a github workflow to build and test the application
-  - A live-check test which runs the application in a test mode and will pass/fail based on live-check exit code
+
+  - A live-check test which runs the application and will pass/fail based on live-check exit code
+
+    see [release-and-test.yml](https://github.com/jerbly/weaver-example/blob/main/.github/workflows/release-and-test.yml)
 
 ## Installation
 
