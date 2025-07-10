@@ -2,7 +2,7 @@
 
 ## Description
 
-This project demonstrate practical usage of weaver - the OpenTelemetry project that provides tooling for semantic conventions.
+This project demonstrates practical usage of weaver - the OpenTelemetry project that provides tooling for semantic conventions.
 
 ## Prerequisites
 
