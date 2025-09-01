@@ -23,7 +23,7 @@ jobs:
 
       - name: Install weaver
         run: |
-          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/open-telemetry/weaver/releases/download/v0.15.2/weaver-installer.sh | sh
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/open-telemetry/weaver/releases/download/v0.17.1/weaver-installer.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Verify weaver installation
